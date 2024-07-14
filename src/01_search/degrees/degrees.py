@@ -1,9 +1,8 @@
 import csv
 import sys
-from collections import deque, namedtuple
 from typing import List, Tuple
 
-from util import Node, StackFrontier, QueueFrontier
+from util import Node, QueueFrontier
 
 # Maps names to a set of corresponding person_ids
 names = {}
@@ -89,12 +88,11 @@ def main():
 def calculate_path(target: Node) -> List[Tuple[str, str]]:
     path = []
     current_node = target
-    while True:
-        if current_node.parent is None:
-            path.reverse()
-            return path
+    while current_node.parent is not None:
         path.append((current_node.action, current_node.state))
         current_node = current_node.parent
+    path.reverse()
+    return path
 
 
 def shortest_path(source: str, target: str) -> List[Tuple[str, str]] | None:
@@ -116,13 +114,11 @@ def shortest_path(source: str, target: str) -> List[Tuple[str, str]] | None:
         explored_set.add(current_node.state)
         neighbors = neighbors_for_person(current_node.state)
         for movie_id, person_id in neighbors:
-            if frontier.contains_state(person_id):
-                continue
-            if person_id in explored_set:
+            if frontier.contains_state(person_id) or person_id in explored_set:
                 continue
             node = Node(person_id, current_node, movie_id)
-            # if target == current_node.state:
-            #     return calculate_path(node)
+            if target == current_node.state:
+                return calculate_path(node)
             frontier.add(node)
 
 
